@@ -3,6 +3,8 @@
 
 #include <QWidget>
 #include <QPainter>
+#include <QPixmap>
+#include <QImage>
 #include <QColor>
 #include <vector>
 
@@ -18,6 +20,7 @@ public:
     void setPenColor(QColor newColor);
     QColor getBrushColor() const;
     void setBrushColor(QColor newColor);
+    void setSpeed(int speed);
 
 signals:
 
@@ -27,16 +30,18 @@ protected:
 private:
     QColor mPenColor;
     QColor mBrushColor;
+    int speed;
     int antx;
     int anty;
     int xIncrement;
     int yIncrement;
-    int steps;
-    std::vector<std::vector<QColor> > colorMap;
+    QPainter *imgPainter;
+    QImage *img;
 
     void turnLeft();
     void turnRight();
     void goForward();
+    QColor oneStep();
 };
 
 #endif // RENDERAREA_H

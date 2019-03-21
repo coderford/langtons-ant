@@ -15,7 +15,14 @@ public:
     explicit MainWindow(QWidget *parent = 0);
     ~MainWindow();
 
+signals:
+    void stopClicked();
+
 private slots:
+    void on_btn_start_clicked();
+    void on_spin_speed_valueChanged(int arg1);
+
+public slots:
 
 private:
     Ui::MainWindow *ui;

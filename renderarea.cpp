@@ -1,64 +1,68 @@
 #include "renderarea.h"
-#include <QTimer>
-#include <QDebug>
+#include <map>
 
 RenderArea::RenderArea(QWidget *parent) : QWidget(parent)
 {
     mBrushColor = QColor::fromRgb(0, 255, 255);
     mPenColor = QColor::fromRgb(255, 0, 0);
 
-    steps = 10000000;
+    speed = 1;
     antx = 400;
     anty = 300;
     xIncrement = 0;
     yIncrement = 1;
-    colorMap.assign(800, std::vector<QColor>(600, QColor::fromRgb(255, 255, 255)));
+
+    img = new QImage(800, 600, QImage::Format_RGB888);
+    img->fill(QColor::fromRgb(255, 255, 255));
+
+    imgPainter = new QPainter(img);
+    imgPainter->setRenderHint(QPainter::Antialiasing, true);
+    imgPainter->setBrush(mBrushColor); // fill color
 }
 
 void RenderArea::paintEvent(QPaintEvent *event)
 {
     Q_UNUSED(event);
 
+    for(int i = 0; i < speed; i++) {
+        imgPainter->setPen(oneStep());
+        imgPainter->drawPoint(antx, anty);
+    }
+
+    QPainter actualPainter(this);
+    actualPainter.drawImage(0, 0, *img);
+}
+
+QColor RenderArea::oneStep()
+{
     QColor whiteColor = QColor::fromRgb(255, 255, 255);
     QColor redColor = QColor::fromRgb(255, 0, 0);
     QColor greenColor = QColor::fromRgb(0, 255, 0);
     QColor blueColor = QColor::fromRgb(0, 0, 255);
 
-    QPainter painter(this);
-    painter.setRenderHint(QPainter::Antialiasing, true);
-    painter.setBrush(mBrushColor); // fill color
-
-    for(int i = 0; i < steps; i++) {
-        goForward();
-        if(antx < 0 || antx > colorMap.size() || anty < 0 || anty > colorMap.size())
-            break;
-        // qDebug() << "antx: " << antx << ", anty: " << anty;
-        if(colorMap[antx][anty] == whiteColor) {
-            colorMap[antx][anty] = redColor;
-            painter.setPen(redColor);
-            painter.drawPoint(antx, anty);
-            turnLeft();
-        }
-        else if(colorMap[antx][anty] == redColor) {
-            QColor nextColor = greenColor;
-            colorMap[antx][anty] = nextColor;
-            painter.setPen(nextColor);
-            painter.drawPoint(antx, anty);
-            turnRight();
-        }
-        else if(colorMap[antx][anty] == greenColor) {
-            colorMap[antx][anty] = blueColor;
-            painter.setPen(blueColor);
-            painter.drawPoint(antx, anty);
-            turnRight();
-        }
-        else if(colorMap[antx][anty] == blueColor) {
-            colorMap[antx][anty] = whiteColor;
-            painter.setPen(whiteColor);
-            painter.drawPoint(antx, anty);
-            turnLeft();
-        }
+    goForward();
+    if(antx < 0 || antx >= 800 || anty < 0 || anty >= 600) {
+        antx -= xIncrement;
+        anty -= yIncrement;
+        return whiteColor;
     }
+    if(img->pixelColor(antx, anty) == whiteColor) {
+        turnRight();
+        return redColor;
+    }
+    if(img->pixelColor(antx, anty) == redColor) {
+        turnLeft();
+        return greenColor;
+    }
+    if(img->pixelColor(antx, anty) == greenColor) {
+        turnLeft();
+        return blueColor;
+    }
+    if(img->pixelColor(antx, anty) == blueColor) {
+        turnRight();
+        return whiteColor;
+    }
+    return whiteColor;
 }
 
 QSize RenderArea::sizeHint() const
@@ -91,7 +95,8 @@ void RenderArea::setPenColor(QColor newColor)
     this->mPenColor = newColor;
 }
 
-void RenderArea::turnLeft() {
+void RenderArea::turnLeft()
+{
     if(xIncrement == 0 && yIncrement == 1) {
        xIncrement = -1;
        yIncrement = 0;
@@ -110,7 +115,8 @@ void RenderArea::turnLeft() {
     }
 }
 
-void RenderArea::turnRight() {
+void RenderArea::turnRight()
+{
     if(xIncrement == 0 && yIncrement == 1) {
        xIncrement = 1;
        yIncrement = 0;
@@ -129,7 +135,13 @@ void RenderArea::turnRight() {
     }
 }
 
-void RenderArea::goForward() {
+void RenderArea::goForward()
+{
     antx += xIncrement;
     anty += yIncrement;
+}
+
+void RenderArea::setSpeed(int speed)
+{
+    this->speed = speed;
 }
