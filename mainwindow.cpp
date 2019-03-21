@@ -1,12 +1,16 @@
 #include "mainwindow.h"
 #include "ui_mainwindow.h"
 
+#include <QDebug>
+
 MainWindow::MainWindow(QWidget *parent) :
     QMainWindow(parent),
     ui(new Ui::MainWindow)
 {
     ui->setupUi(this);
     stepsBeforeRedraw = 1;
+    constructMovementRulesScene(ui->render_area->moveTable);
+    drawMovementRulesScene();
 }
 
 MainWindow::~MainWindow()
@@ -43,4 +47,32 @@ void MainWindow::on_btn_start_clicked()
 void MainWindow::on_spin_speed_valueChanged(int val)
 {
     stepsBeforeRedraw = val;
+}
+
+void MainWindow::constructMovementRulesScene(const QMap<QRgb, QPair<char, QRgb> > &moveTable)
+{
+    int x = 5, y = 5;
+    int w = 30, h = 20;
+    int gap = 40;
+
+    QMap<QRgb, QPair<char, QRgb> >::const_iterator it = moveTable.begin();
+    while(it != moveTable.end()) {
+        QColor fromColor = QColor::fromRgba(it.key());
+        QColor toColor = QColor::fromRgba(it.value().second);
+
+        movementRulesScene.addRect(x, y, w, h, QPen(Qt::black), QBrush(fromColor));
+        /* arrow v */
+        movementRulesScene.addLine(x + w, y + h/2, x + w + gap, y + h/2, QPen(Qt::black));
+        movementRulesScene.addLine(x + w + gap-10, y, x + w + gap, y + h/2, QPen(Qt::black));
+        movementRulesScene.addLine(x + w + gap-10, y + h, x + w + gap, y + h/2, QPen(Qt::black));
+        /* arrow ^ */
+        movementRulesScene.addRect(x + w + gap, y, w, h, QPen(Qt::black), QBrush(toColor));
+        y += 25;
+        it++;
+    }
+}
+
+void MainWindow::drawMovementRulesScene()
+{
+    ui->movement_rules_view->setScene(&movementRulesScene);
 }

@@ -4,7 +4,9 @@
 #include <QWidget>
 #include <QPainter>
 #include <QImage>
-#include <QColor>
+#include <QRgb>
+#include <QMap>
+#include <QPair>
 
 class RenderArea : public QWidget
 {
@@ -16,8 +18,11 @@ public:
 
     bool oneStep();		// move the ant one step forward, update color, and turn the ant
 
-    static const int minWidth = 800;		// minimum width and height of render area
-    static const int minHeight = 600;
+    static const int minWidth = 650;		// minimum width and height of render area
+    static const int minHeight = 650;
+
+    QMap<QRgb, QPair<char, QRgb> > moveTable;
+    // ^ using QRgb because QColor is not hashable.
 
 signals:
 

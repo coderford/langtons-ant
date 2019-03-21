@@ -1,5 +1,4 @@
 #include "renderarea.h"
-#include <map>
 
 RenderArea::RenderArea(QWidget *parent) : QWidget(parent)
 {
@@ -8,11 +7,23 @@ RenderArea::RenderArea(QWidget *parent) : QWidget(parent)
     xIncrement = 0;			// ant's initial direction is down
     yIncrement = 1;
 
-    img = new QImage(minWidth, minHeight, QImage::Format_RGB888);
-    img->fill(QColor::fromRgb(255, 255, 255));
+    // initializing the render buffer and the painter for it
+    img = new QImage(minWidth, minHeight, QImage::Format_ARGB32);
+    img->fill(Qt::white);
 
     imgPainter = new QPainter(img);
     imgPainter->setRenderHint(QPainter::Antialiasing, true);
+
+    // move table initialization
+    QRgb whiteRgb = QColor::fromRgb(255, 255, 255, 255).rgba();
+    QRgb redRgb = QColor::fromRgb(255, 0, 0, 255).rgba();
+    QRgb greenRgb = QColor::fromRgb(0, 255, 0, 255).rgba();
+    QRgb blueRgb = QColor::fromRgb(0, 0, 255, 255).rgba();
+
+    moveTable[whiteRgb] = QPair<char, QRgb>('l', redRgb);
+    moveTable[redRgb] = QPair<char, QRgb>('r', greenRgb);
+    moveTable[greenRgb] = QPair<char, QRgb>('r', blueRgb);
+    moveTable[blueRgb] = QPair<char, QRgb>('l', whiteRgb);
 }
 
 void RenderArea::paintEvent(QPaintEvent *event)
@@ -24,34 +35,17 @@ void RenderArea::paintEvent(QPaintEvent *event)
 
 bool RenderArea::oneStep()
 {
-    QColor whiteColor = QColor::fromRgb(255, 255, 255);
-    QColor redColor = QColor::fromRgb(255, 0, 0);
-    QColor greenColor = QColor::fromRgb(0, 255, 0);
-    QColor blueColor = QColor::fromRgb(0, 0, 255);
-    QColor nextColor;
-
     goForward();
     if(antX < 0 || antX >= minWidth || antY < 0 || antY >= minHeight) {
         antX -= xIncrement;
         antY -= yIncrement;
         return false;
     }
-    if(img->pixelColor(antX, antY) == whiteColor) {
-        turnRight();
-        nextColor = redColor;
-    }
-    else if(img->pixelColor(antX, antY) == redColor) {
-        turnLeft();
-        nextColor = greenColor;
-    }
-    else if(img->pixelColor(antX, antY) == greenColor) {
-        turnLeft();
-        nextColor = blueColor;
-    }
-    else if(img->pixelColor(antX, antY) == blueColor) {
-        turnRight();
-        nextColor = whiteColor;
-    }
+
+    QRgb currRgb = img->pixel(antX, antY);
+    if(moveTable[currRgb].first == 'l') turnLeft();
+    if(moveTable[currRgb].first == 'r') turnRight();
+    QColor nextColor = QColor::fromRgba(moveTable[currRgb].second);
 
     imgPainter->setPen(nextColor);
     imgPainter->drawPoint(antX, antY);

@@ -2,6 +2,7 @@
 #define MAINWINDOW_H
 
 #include <QMainWindow>
+#include <QGraphicsScene>
 
 namespace Ui {
 class MainWindow;
@@ -27,6 +28,10 @@ public slots:
 private:
     Ui::MainWindow *ui;
     int stepsBeforeRedraw;				// number of steps ant takes before screen is redrawn
+
+    QGraphicsScene movementRulesScene;
+    void constructMovementRulesScene(const QMap<QRgb, QPair<char, QRgb> > &moveTable);
+    void drawMovementRulesScene();
 };
 
 #endif // MAINWINDOW_H
