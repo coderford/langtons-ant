@@ -6,6 +6,7 @@ MainWindow::MainWindow(QWidget *parent) :
     ui(new Ui::MainWindow)
 {
     ui->setupUi(this);
+    stepsBeforeRedraw = 1;
 }
 
 MainWindow::~MainWindow()
@@ -20,8 +21,16 @@ void MainWindow::on_btn_start_clicked()
    ui->spin_speed->setEnabled(false);
 
    long steps = ui->spin_steps->value();
+   bool outOfBounds = false;
 
    for(long i = 0; i < steps; i++) {
+       for(int j = 0; j < stepsBeforeRedraw; j++) {
+           if(ui->render_area->oneStep() == false) {
+               outOfBounds = true;
+               break;
+           }
+       }
+       if(outOfBounds) break;
        ui->render_area->repaint();
    }
 
@@ -33,5 +42,5 @@ void MainWindow::on_btn_start_clicked()
 
 void MainWindow::on_spin_speed_valueChanged(int val)
 {
-    ui->render_area->setSpeed(val);
+    stepsBeforeRedraw = val;
 }

@@ -26,6 +26,7 @@ public slots:
 
 private:
     Ui::MainWindow *ui;
+    int stepsBeforeRedraw;				// number of steps ant takes before screen is redrawn
 };
 
 #endif // MAINWINDOW_H

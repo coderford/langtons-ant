@@ -3,96 +3,69 @@
 
 RenderArea::RenderArea(QWidget *parent) : QWidget(parent)
 {
-    mBrushColor = QColor::fromRgb(0, 255, 255);
-    mPenColor = QColor::fromRgb(255, 0, 0);
-
-    speed = 1;
-    antx = 400;
-    anty = 300;
-    xIncrement = 0;
+    antX = minWidth/2;		// ant starts off in the middle of render-area
+    antY = minHeight/2;
+    xIncrement = 0;			// ant's initial direction is down
     yIncrement = 1;
 
-    img = new QImage(800, 600, QImage::Format_RGB888);
+    img = new QImage(minWidth, minHeight, QImage::Format_RGB888);
     img->fill(QColor::fromRgb(255, 255, 255));
 
     imgPainter = new QPainter(img);
     imgPainter->setRenderHint(QPainter::Antialiasing, true);
-    imgPainter->setBrush(mBrushColor); // fill color
 }
 
 void RenderArea::paintEvent(QPaintEvent *event)
 {
     Q_UNUSED(event);
-
-    for(int i = 0; i < speed; i++) {
-        imgPainter->setPen(oneStep());
-        imgPainter->drawPoint(antx, anty);
-    }
-
     QPainter actualPainter(this);
     actualPainter.drawImage(0, 0, *img);
 }
 
-QColor RenderArea::oneStep()
+bool RenderArea::oneStep()
 {
     QColor whiteColor = QColor::fromRgb(255, 255, 255);
     QColor redColor = QColor::fromRgb(255, 0, 0);
     QColor greenColor = QColor::fromRgb(0, 255, 0);
     QColor blueColor = QColor::fromRgb(0, 0, 255);
+    QColor nextColor;
 
     goForward();
-    if(antx < 0 || antx >= 800 || anty < 0 || anty >= 600) {
-        antx -= xIncrement;
-        anty -= yIncrement;
-        return whiteColor;
+    if(antX < 0 || antX >= minWidth || antY < 0 || antY >= minHeight) {
+        antX -= xIncrement;
+        antY -= yIncrement;
+        return false;
     }
-    if(img->pixelColor(antx, anty) == whiteColor) {
+    if(img->pixelColor(antX, antY) == whiteColor) {
         turnRight();
-        return redColor;
+        nextColor = redColor;
     }
-    if(img->pixelColor(antx, anty) == redColor) {
+    else if(img->pixelColor(antX, antY) == redColor) {
         turnLeft();
-        return greenColor;
+        nextColor = greenColor;
     }
-    if(img->pixelColor(antx, anty) == greenColor) {
+    else if(img->pixelColor(antX, antY) == greenColor) {
         turnLeft();
-        return blueColor;
+        nextColor = blueColor;
     }
-    if(img->pixelColor(antx, anty) == blueColor) {
+    else if(img->pixelColor(antX, antY) == blueColor) {
         turnRight();
-        return whiteColor;
+        nextColor = whiteColor;
     }
-    return whiteColor;
+
+    imgPainter->setPen(nextColor);
+    imgPainter->drawPoint(antX, antY);
+    return true;
 }
 
 QSize RenderArea::sizeHint() const
 {
-    return QSize(800, 600);
+    return QSize(minWidth, minHeight);
 }
 
 QSize RenderArea::minimumSizeHint() const
 {
-    return QSize(800, 600);
-}
-
-QColor RenderArea::getBrushColor() const
-{
-    return this->mBrushColor;
-}
-
-void RenderArea::setBrushColor(QColor newColor)
-{
-    this->mBrushColor = newColor;
-}
-
-QColor RenderArea::getPenColor() const
-{
-    return this->mPenColor;
-}
-
-void RenderArea::setPenColor(QColor newColor)
-{
-    this->mPenColor = newColor;
+    return QSize(minWidth, minHeight);
 }
 
 void RenderArea::turnLeft()
@@ -137,11 +110,6 @@ void RenderArea::turnRight()
 
 void RenderArea::goForward()
 {
-    antx += xIncrement;
-    anty += yIncrement;
-}
-
-void RenderArea::setSpeed(int speed)
-{
-    this->speed = speed;
+    antX += xIncrement;
+    antY += yIncrement;
 }

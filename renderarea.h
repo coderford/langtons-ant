@@ -3,10 +3,8 @@
 
 #include <QWidget>
 #include <QPainter>
-#include <QPixmap>
 #include <QImage>
 #include <QColor>
-#include <vector>
 
 class RenderArea : public QWidget
 {
@@ -16,11 +14,10 @@ public:
     QSize minimumSizeHint() const override;
     QSize sizeHint() const override;
 
-    QColor getPenColor() const;
-    void setPenColor(QColor newColor);
-    QColor getBrushColor() const;
-    void setBrushColor(QColor newColor);
-    void setSpeed(int speed);
+    bool oneStep();		// move the ant one step forward, update color, and turn the ant
+
+    static const int minWidth = 800;		// minimum width and height of render area
+    static const int minHeight = 600;
 
 signals:
 
@@ -28,20 +25,18 @@ protected:
     void paintEvent(QPaintEvent *);
 
 private:
-    QColor mPenColor;
-    QColor mBrushColor;
-    int speed;
-    int antx;
-    int anty;
-    int xIncrement;
+    int antX;				// current x position of ant
+    int antY;				// current y position of ant
+
+    int xIncrement;			// these two specify the direction in which the ant is moving
     int yIncrement;
-    QPainter *imgPainter;
-    QImage *img;
+
+    QImage *img;			// off-screen image representation of screen for decoupled updating an redrawing
+    QPainter *imgPainter;   // a painter for the above QImage
 
     void turnLeft();
     void turnRight();
-    void goForward();
-    QColor oneStep();
+    void goForward();		// move ant one block forward
 };
 
 #endif // RENDERAREA_H
