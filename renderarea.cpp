@@ -4,8 +4,8 @@ RenderArea::RenderArea(QWidget *parent) : QWidget(parent)
 {
     antX = minWidth/2;		// ant starts off in the middle of render-area
     antY = minHeight/2;
-    xIncrement = 0;			// ant's initial direction is down
-    yIncrement = 1;
+    xIncrement = 0;			// ant's initial direction is up
+    yIncrement = -1;
 
     // initializing the render buffer and the painter for it
     img = new QImage(minWidth, minHeight, QImage::Format_ARGB32);
@@ -19,11 +19,13 @@ RenderArea::RenderArea(QWidget *parent) : QWidget(parent)
     QRgb redRgb = QColor::fromRgb(255, 0, 0, 255).rgba();
     QRgb greenRgb = QColor::fromRgb(0, 255, 0, 255).rgba();
     QRgb blueRgb = QColor::fromRgb(0, 0, 255, 255).rgba();
+    QRgb yellowRgb = QColor::fromRgb(255, 255, 0, 255).rgba();
 
-    moveTable[whiteRgb] = QPair<char, QRgb>('l', redRgb);
+    moveTable[whiteRgb] = QPair<char, QRgb>('r', redRgb);
     moveTable[redRgb] = QPair<char, QRgb>('r', greenRgb);
-    moveTable[greenRgb] = QPair<char, QRgb>('r', blueRgb);
-    moveTable[blueRgb] = QPair<char, QRgb>('l', whiteRgb);
+    moveTable[greenRgb] = QPair<char, QRgb>('l', blueRgb);
+    moveTable[blueRgb] = QPair<char, QRgb>('r', yellowRgb);
+    moveTable[yellowRgb] = QPair<char, QRgb>('r', whiteRgb);
 }
 
 void RenderArea::paintEvent(QPaintEvent *event)
@@ -62,7 +64,7 @@ QSize RenderArea::minimumSizeHint() const
     return QSize(minWidth, minHeight);
 }
 
-void RenderArea::turnLeft()
+void RenderArea::turnRight()
 {
     if(xIncrement == 0 && yIncrement == 1) {
        xIncrement = -1;
@@ -82,7 +84,7 @@ void RenderArea::turnLeft()
     }
 }
 
-void RenderArea::turnRight()
+void RenderArea::turnLeft()
 {
     if(xIncrement == 0 && yIncrement == 1) {
        xIncrement = 1;

@@ -51,7 +51,7 @@ void MainWindow::on_spin_speed_valueChanged(int val)
 
 void MainWindow::constructMovementRulesScene(const QMap<QRgb, QPair<char, QRgb> > &moveTable)
 {
-    int x = 5, y = 5;
+    int x = 0, y = 0;
     int w = 30, h = 20;
     int gap = 40;
 
