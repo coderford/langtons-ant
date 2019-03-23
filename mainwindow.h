@@ -35,6 +35,8 @@ private:
     void drawMovementRulesScene();
 
     void setControlsEnabled(bool val);
+
+    QPolygon makeDirIndicator(int x, int y, int w, int h, char dir);
 };
 
 #endif // MAINWINDOW_H
