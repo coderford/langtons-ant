@@ -2,7 +2,8 @@
 #define MAINWINDOW_H
 
 #include <QMainWindow>
-#include <QGraphicsScene>
+//#include <QGraphicsScene>
+#include "rulescene.h"
 
 namespace Ui {
 class MainWindow;
@@ -28,15 +29,12 @@ public slots:
 
 private:
     Ui::MainWindow *ui;
-    int stepsBeforeRedraw;				// number of steps ant takes before screen is redrawn
 
-    QGraphicsScene movementRulesScene;
-    void constructMovementRulesScene(const QMap<QRgb, QPair<char, QRgb> > &moveTable);
-    void drawMovementRulesScene();
+    int stepsBeforeRedraw;					// number of steps ant takes before screen is redrawn
+
+    RuleScene ruleScene;
 
     void setControlsEnabled(bool val);
-
-    QPolygon makeDirIndicator(int x, int y, int w, int h, char dir);
 };
 
 #endif // MAINWINDOW_H
