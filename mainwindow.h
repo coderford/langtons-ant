@@ -22,6 +22,7 @@ signals:
 private slots:
     void on_btn_start_clicked();
     void on_spin_speed_valueChanged(int arg1);
+    void on_btn_clear_clicked();
 
 public slots:
 
@@ -32,6 +33,8 @@ private:
     QGraphicsScene movementRulesScene;
     void constructMovementRulesScene(const QMap<QRgb, QPair<char, QRgb> > &moveTable);
     void drawMovementRulesScene();
+
+    void setControlsEnabled(bool val);
 };
 
 #endif // MAINWINDOW_H

@@ -8,9 +8,12 @@ MainWindow::MainWindow(QWidget *parent) :
     ui(new Ui::MainWindow)
 {
     ui->setupUi(this);
-    stepsBeforeRedraw = 1;
+
     constructMovementRulesScene(ui->render_area->moveTable);
-    drawMovementRulesScene();
+    ui->movement_rules_view->setScene(&movementRulesScene);
+
+    stepsBeforeRedraw = 1000;
+    ui->spin_speed->setValue(stepsBeforeRedraw);
 }
 
 MainWindow::~MainWindow()
@@ -20,10 +23,7 @@ MainWindow::~MainWindow()
 
 void MainWindow::on_btn_start_clicked()
 {
-   ui->btn_start->setEnabled(false);
-   ui->spin_steps->setEnabled(false);
-   ui->spin_speed->setEnabled(false);
-
+   setControlsEnabled(false);
    long steps = ui->spin_steps->value();
    bool outOfBounds = false;
 
@@ -37,11 +37,7 @@ void MainWindow::on_btn_start_clicked()
        if(outOfBounds) break;
        ui->render_area->repaint();
    }
-
-   ui->btn_start->setEnabled(true);
-   ui->spin_steps->setEnabled(true);
-   ui->spin_speed->setEnabled(true);
-
+   setControlsEnabled(true);
 }
 
 void MainWindow::on_spin_speed_valueChanged(int val)
@@ -51,28 +47,55 @@ void MainWindow::on_spin_speed_valueChanged(int val)
 
 void MainWindow::constructMovementRulesScene(const QMap<QRgb, QPair<char, QRgb> > &moveTable)
 {
-    int x = 0, y = 0;
-    int w = 30, h = 20;
-    int gap = 40;
+    QRgb startColor = ui->render_area->getBackgroundColor();
+    QRgb currColor = startColor;
+    int startx = 0, starty = 0;
+    int x = startx, y = starty;
+    int w = 40, h = 30;
+    int gap = 10;
 
-    QMap<QRgb, QPair<char, QRgb> >::const_iterator it = moveTable.begin();
-    while(it != moveTable.end()) {
-        QColor fromColor = QColor::fromRgba(it.key());
-        QColor toColor = QColor::fromRgba(it.value().second);
+    int iters = 0;
+    int maxiters = 100;
 
-        movementRulesScene.addRect(x, y, w, h, QPen(Qt::black), QBrush(fromColor));
+    while(true) {
+        if(iters > maxiters) {
+            qDebug() << "ERROR: too many iterations!";
+            break;
+        }
+        movementRulesScene.addRect(x, y, w, h, QPen(Qt::black), QBrush(QColor::fromRgba(currColor)));
+        currColor = moveTable[currColor].second;
+
         /* arrow v */
-        movementRulesScene.addLine(x + w, y + h/2, x + w + gap, y + h/2, QPen(Qt::black));
-        movementRulesScene.addLine(x + w + gap-10, y, x + w + gap, y + h/2, QPen(Qt::black));
-        movementRulesScene.addLine(x + w + gap-10, y + h, x + w + gap, y + h/2, QPen(Qt::black));
+        movementRulesScene.addLine(x + w/2, y + h, x + w/2, y + h + gap, QPen(Qt::black));
+        if(currColor == startColor) break;
+        movementRulesScene.addLine(x + w/2 - 5, y + h + gap - 5, x + w/2, y + h + gap, QPen(Qt::black));
+        movementRulesScene.addLine(x + w/2 + 5, y + h + gap - 5, x + w/2, y + h + gap, QPen(Qt::black));
         /* arrow ^ */
-        movementRulesScene.addRect(x + w + gap, y, w, h, QPen(Qt::black), QBrush(toColor));
-        y += 25;
-        it++;
+        y += gap + h;
+        iters++;
     }
+
+    // adding lines like this is really tedious! these are for the loop
+    movementRulesScene.addLine(x + w/2, y + h + gap, x + 3*w/2, y + h + gap, QPen(Qt::black));
+    movementRulesScene.addLine(x + 3*w/2, y + h + gap, startx + 3*w/2, starty - gap, QPen(Qt::black));
+    movementRulesScene.addLine(startx + 3*w/2, starty - gap, startx + w/2, starty - gap, QPen(Qt::black));
+    movementRulesScene.addLine(startx + w/2, starty - gap, startx + w/2, starty, QPen(Qt::black));
+
+    // final arrowheads
+    movementRulesScene.addLine(startx + w/2 - 5, starty - 5, startx + w/2, starty, QPen(Qt::black));
+    movementRulesScene.addLine(startx + w/2 + 5, starty - 5, startx + w/2, starty, QPen(Qt::black));
 }
 
-void MainWindow::drawMovementRulesScene()
+void MainWindow::on_btn_clear_clicked()
 {
-    ui->movement_rules_view->setScene(&movementRulesScene);
+    ui->render_area->reset();
+    ui->render_area->repaint();
+}
+
+void MainWindow::setControlsEnabled(bool val)
+{
+   ui->btn_start->setEnabled(val);
+   ui->spin_steps->setEnabled(val);
+   ui->spin_speed->setEnabled(val);
+   ui->btn_clear->setEnabled(val);
 }

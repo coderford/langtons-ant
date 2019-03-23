@@ -24,6 +24,11 @@ public:
     QMap<QRgb, QPair<char, QRgb> > moveTable;
     // ^ using QRgb because QColor is not hashable.
 
+    QRgb getBackgroundColor() const;
+    void setBackgroundColor(QColor color);
+
+    void reset();
+
 signals:
 
 protected:
@@ -36,6 +41,7 @@ private:
     int xIncrement;			// these two specify the direction in which the ant is moving
     int yIncrement;
 
+    QRgb backgroundColor;	// the background color; will be the first color in movement rules
     QImage *img;			// off-screen image representation of screen for decoupled updating an redrawing
     QPainter *imgPainter;   // a painter for the above QImage
 
