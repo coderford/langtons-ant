@@ -2,6 +2,7 @@
 #include "ui_mainwindow.h"
 
 #include <QDebug>
+#include <QColorDialog>
 
 MainWindow::MainWindow(QWidget *parent) :
     QMainWindow(parent),
@@ -9,8 +10,11 @@ MainWindow::MainWindow(QWidget *parent) :
 {
     ui->setupUi(this);
 
-    ruleScene.construct(ui->render_area->moveTable, ui->render_area->getBackgroundColor());
-    ui->movement_rules_view->setScene(&ruleScene);
+    ruleScene = new RuleScene(this);
+    connect(ruleScene, SIGNAL(dirArrowClicked(int)), this, SLOT(on_dirArrowClicked(int)));
+    connect(ruleScene, SIGNAL(colorRectClicked(int)), this, SLOT(on_colorRectClicked(int)));
+    ruleScene->construct(ui->render_area->moveTable, ui->render_area->getBackgroundColor());
+    ui->movement_rules_view->setScene(ruleScene);
 
     stepsBeforeRedraw = 1000;
     ui->spin_speed->setValue(stepsBeforeRedraw);
@@ -57,4 +61,18 @@ void MainWindow::setControlsEnabled(bool val)
    ui->spin_steps->setEnabled(val);
    ui->spin_speed->setEnabled(val);
    ui->btn_clear->setEnabled(val);
+}
+
+void MainWindow::on_dirArrowClicked(int index)
+{
+    ui->render_area->flipDirAtIndex(index);
+    ruleScene->construct(ui->render_area->moveTable, ui->render_area->getBackgroundColor());
+}
+
+void MainWindow::on_colorRectClicked(int index)
+{
+    if(index == 0) return;		// do not let background color to be changed... for now
+    QColor newColor = QColorDialog::getColor(ui->render_area->colorIndex[index], this, "Choose New Color");
+    ui->render_area->setNewColorAtIndex(index, newColor.rgba());
+    ruleScene->construct(ui->render_area->moveTable, ui->render_area->getBackgroundColor());
 }

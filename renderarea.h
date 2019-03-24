@@ -7,6 +7,7 @@
 #include <QRgb>
 #include <QMap>
 #include <QPair>
+#include <QVector>
 
 class RenderArea : public QWidget
 {
@@ -16,17 +17,19 @@ public:
     QSize minimumSizeHint() const override;
     QSize sizeHint() const override;
 
-    bool oneStep();		// move the ant one step forward, update color, and turn the ant
+    bool oneStep();					// move the ant one step forward, update color, and turn the ant
 
-    static const int minWidth = 650;		// minimum width and height of render area
+    static const int minWidth = 650;			// minimum width and height of render area
     static const int minHeight = 650;
 
-    QMap<QRgb, QPair<char, QRgb> > moveTable;
-    // ^ using QRgb because QColor is not hashable.
+    QMap<QRgb, QPair<char, QRgb> > moveTable; 	// using QRgb as QColor is not hashable
+    QVector<QRgb> colorIndex;		// a table used to index into the moveTable; index 0 is backgroundColor
 
     QRgb getBackgroundColor() const;
     void setBackgroundColor(QColor color);
 
+    void flipDirAtIndex(int index);
+    void setNewColorAtIndex(int index, QRgb newColor);
     void reset();
 
 signals:
@@ -44,6 +47,8 @@ private:
     QRgb backgroundColor;	// the background color; will be the first color in movement rules
     QImage *img;			// off-screen image representation of screen for decoupled updating an redrawing
     QPainter *imgPainter;   // a painter for the above QImage
+
+    void constructColorIndex();
 
     void turnLeft();
     void turnRight();

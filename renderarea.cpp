@@ -19,6 +19,8 @@ RenderArea::RenderArea(QWidget *parent) : QWidget(parent)
 
     /* some interesting rules:
      * rlrlrl llllll
+     * llrrlr rrrrrr
+     * llrrll rrllrr
      * rrll
      * lrrl
      * rrrlr
@@ -48,6 +50,8 @@ RenderArea::RenderArea(QWidget *parent) : QWidget(parent)
     moveTable[darkGreenRgb] = QPair<char, QRgb>('l', cyanRgb);
     moveTable[cyanRgb] = QPair<char, QRgb>('l', darkYellowRgb);
     moveTable[darkYellowRgb] = QPair<char, QRgb>('l', darkPinkRgb);
+
+    constructColorIndex();
 }
 
 void RenderArea::paintEvent(QPaintEvent *event)
@@ -151,4 +155,44 @@ void RenderArea::reset()
 
     // initializing the render buffer and the painter for it
     img->fill(backgroundColor);
+}
+
+void RenderArea::constructColorIndex()
+{
+    colorIndex.clear();
+    colorIndex.push_back(backgroundColor);
+
+    QRgb currColor = moveTable[backgroundColor].second;
+    while(currColor != backgroundColor) {
+        colorIndex.push_back(currColor);
+        currColor = moveTable[currColor].second;
+    }
+}
+
+void RenderArea::flipDirAtIndex(int index)
+{
+    QRgb color;
+    if(index > 0)
+        color = colorIndex[index-1];
+    else
+        color = colorIndex[colorIndex.size()-1];
+
+    if(moveTable[color].first == 'l')
+        moveTable[color].first = 'r';
+    else
+        moveTable[color].first = 'l';
+}
+
+void RenderArea::setNewColorAtIndex(int index, QRgb newColor)
+{
+    QRgb oldColor;
+    oldColor = colorIndex[index];
+
+    QPair<char, QRgb> save = moveTable[oldColor];
+    moveTable.remove(oldColor);
+    moveTable[newColor] = save;
+    colorIndex[index] = newColor;
+
+    if(index == 0) moveTable[colorIndex[colorIndex.size()-1]].second = newColor;
+    else moveTable[colorIndex[index-1]].second = newColor;
 }

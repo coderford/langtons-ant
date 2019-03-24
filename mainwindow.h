@@ -2,7 +2,6 @@
 #define MAINWINDOW_H
 
 #include <QMainWindow>
-//#include <QGraphicsScene>
 #include "rulescene.h"
 
 namespace Ui {
@@ -26,13 +25,15 @@ private slots:
     void on_btn_clear_clicked();
 
 public slots:
+    void on_dirArrowClicked(int index);
+    void on_colorRectClicked(int index);
 
 private:
     Ui::MainWindow *ui;
 
     int stepsBeforeRedraw;					// number of steps ant takes before screen is redrawn
 
-    RuleScene ruleScene;
+    RuleScene *ruleScene;
 
     void setControlsEnabled(bool val);
 };
