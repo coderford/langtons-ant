@@ -16,8 +16,7 @@ MainWindow::MainWindow(QWidget *parent) :
     ruleScene->construct(ui->render_area->moveTable, ui->render_area->getBackgroundColor());
     ui->movement_rules_view->setScene(ruleScene);
 
-    stepsBeforeRedraw = 1000;
-    ui->spin_speed->setValue(stepsBeforeRedraw);
+    stepsBeforeRedraw = ui->spin_speed->value();
 }
 
 MainWindow::~MainWindow()
@@ -51,7 +50,7 @@ void MainWindow::on_spin_speed_valueChanged(int val)
 
 void MainWindow::on_btn_clear_clicked()
 {
-    ui->render_area->reset();
+    ui->render_area->clearScreen();
     ui->render_area->repaint();
 }
 

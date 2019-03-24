@@ -4,6 +4,17 @@ RenderArea::RenderArea(QWidget *parent) : QWidget(parent)
 {
     antX = minWidth/2;		// ant starts off in the middle of render-area
     antY = minHeight/2;
+
+    antXMax = antX;
+    antXMin = antX;
+    antYMax = antY;
+    antYMin = antY;
+
+    viewPortW = 10;
+    viewPortH = 10;
+    viewPortX = minWidth/2 - viewPortW/2;
+    viewPortY = minHeight/2 - viewPortH/2;
+
     xIncrement = 0;			// ant's initial direction is up
     yIncrement = -1;
 
@@ -57,8 +68,10 @@ RenderArea::RenderArea(QWidget *parent) : QWidget(parent)
 void RenderArea::paintEvent(QPaintEvent *event)
 {
     Q_UNUSED(event);
+    QRectF source(viewPortX, viewPortY, viewPortW, viewPortH);
+    QRectF target(0, 0, minWidth, minHeight);
     QPainter actualPainter(this);
-    actualPainter.drawImage(0, 0, *img);
+    actualPainter.drawImage(target, *img, source);
 }
 
 bool RenderArea::oneStep()
@@ -77,6 +90,14 @@ bool RenderArea::oneStep()
 
     imgPainter->setPen(nextColor);
     imgPainter->drawPoint(antX, antY);
+
+    if(antX <= minWidth/2 - viewPortW/2 || antX >= minWidth/2 + viewPortW/2) expandViewPort();
+    if(antY <= minHeight/2 - viewPortH/2 || antY >= minHeight/2 + viewPortH/2) expandViewPort();
+
+    antXMax = (antXMax < antX) ? antX : antXMax;
+    antYMax = (antYMax < antY) ? antY : antYMax;
+    antXMin = (antXMin > antX) ? antX : antXMin;
+    antYMin = (antYMin > antY) ? antY : antYMin;
     return true;
 }
 
@@ -146,12 +167,20 @@ void RenderArea::setBackgroundColor(QColor color)
     backgroundColor = color.rgba();
 }
 
-void RenderArea::reset()
+void RenderArea::clearScreen()
 {
     antX = minWidth/2;		// ant starts off in the middle of render-area
     antY = minHeight/2;
-    xIncrement = 0;			// ant's initial direction is up
-    yIncrement = -1;
+
+    antXMax = antX;
+    antXMin = antX;
+    antYMax = antY;
+    antYMin = antY;
+
+    viewPortW = 10;
+    viewPortH = 10;
+    viewPortX = minWidth/2 - viewPortW/2;
+    viewPortY = minHeight/2 - viewPortH/2;
 
     // initializing the render buffer and the painter for it
     img->fill(backgroundColor);
@@ -195,4 +224,13 @@ void RenderArea::setNewColorAtIndex(int index, QRgb newColor)
 
     if(index == 0) moveTable[colorIndex[colorIndex.size()-1]].second = newColor;
     else moveTable[colorIndex[index-1]].second = newColor;
+}
+
+void RenderArea::expandViewPort()
+{
+    viewPortH *= 2;
+    viewPortW *= 2;
+
+    viewPortX = minWidth/2 - viewPortW/2;
+    viewPortY = minHeight/2 - viewPortH/2;
 }

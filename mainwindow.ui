@@ -53,10 +53,10 @@
              <number>100000000</number>
             </property>
             <property name="singleStep">
-             <number>1000</number>
+             <number>100</number>
             </property>
             <property name="value">
-             <number>100</number>
+             <number>1</number>
             </property>
            </widget>
           </item>
@@ -85,8 +85,11 @@
             <property name="maximum">
              <number>50000</number>
             </property>
+            <property name="singleStep">
+             <number>100</number>
+            </property>
             <property name="value">
-             <number>1000</number>
+             <number>1</number>
             </property>
            </widget>
           </item>

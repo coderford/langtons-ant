@@ -30,7 +30,7 @@ public:
 
     void flipDirAtIndex(int index);
     void setNewColorAtIndex(int index, QRgb newColor);
-    void reset();
+    void clearScreen();
 
 signals:
 
@@ -40,6 +40,16 @@ protected:
 private:
     int antX;				// current x position of ant
     int antY;				// current y position of ant
+
+    int antXMax;			// these keep track of the bounds of the figure
+    int antYMax;
+    int antXMin;
+    int antYMin;
+
+    int viewPortX;
+    int viewPortY;
+    int viewPortW;			// what part of the image should be viewed?
+    int viewPortH;
 
     int xIncrement;			// these two specify the direction in which the ant is moving
     int yIncrement;
@@ -53,6 +63,8 @@ private:
     void turnLeft();
     void turnRight();
     void goForward();		// move ant one block forward
+
+    void expandViewPort();
 };
 
 #endif // RENDERAREA_H
